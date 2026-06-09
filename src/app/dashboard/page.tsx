@@ -20,9 +20,14 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getPlatformStats(), getRevenue(), getEtfStats()])
-      .then(([s, r, e]) => { setStats(s); setRevenue(r); setEtf(e); })
-      .catch(err => setError(err.message))
+    Promise.allSettled([getPlatformStats(), getRevenue(), getEtfStats()])
+      .then(([s, r, e]) => {
+        if (s.status === 'fulfilled') setStats(s.value);
+        else setError(`Stats: ${s.reason?.message || 'failed'}`);
+        if (r.status === 'fulfilled') setRevenue(r.value);
+        // revenue failure is non-fatal — charts just won't show
+        if (e.status === 'fulfilled') setEtf(e.value);
+      })
       .finally(() => setLoading(false));
   }, []);
 

@@ -30,8 +30,15 @@ async function proxy(
     target.searchParams.set(key, value);
   });
 
-  // Forward request headers — drop hop-by-hop headers
-  const SKIP = new Set(['host', 'connection', 'transfer-encoding', 'keep-alive']);
+  // Forward request headers — drop hop-by-hop headers AND compression
+  // negotiation headers.  Node's fetch() auto-decompresses responses, so if
+  // we forward Accept-Encoding the upstream returns a compressed body that
+  // Node already decoded — but the Content-Encoding header we'd then forward
+  // would tell the browser to decompress again, producing an empty result.
+  const SKIP = new Set([
+    'host', 'connection', 'transfer-encoding', 'keep-alive',
+    'accept-encoding',   // don't ask upstream to compress
+  ]);
   const fwdHeaders: Record<string, string> = {};
   req.headers.forEach((value, key) => {
     if (!SKIP.has(key.toLowerCase())) fwdHeaders[key] = value;
@@ -58,10 +65,17 @@ async function proxy(
     );
   }
 
-  // Forward response headers (drop hop-by-hop)
+  // Forward response headers — drop hop-by-hop AND content-encoding.
+  // Node's fetch already decompressed the body; forwarding Content-Encoding
+  // would tell the browser to decompress a second time → empty response.
+  const RES_SKIP = new Set([
+    'host', 'connection', 'transfer-encoding', 'keep-alive',
+    'content-encoding',  // body is already decoded by Node fetch
+    'content-length',    // length changed after decompression
+  ]);
   const resHeaders = new Headers();
   upstreamRes.headers.forEach((value, key) => {
-    if (!SKIP.has(key.toLowerCase())) resHeaders.set(key, value);
+    if (!RES_SKIP.has(key.toLowerCase())) resHeaders.set(key, value);
   });
 
   resHeaders.set('x-proxy-version', 'v3-api-route');
