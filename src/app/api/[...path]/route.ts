@@ -60,6 +60,8 @@ async function proxy(
     if (!SKIP.has(key.toLowerCase())) resHeaders.set(key, value);
   });
 
+  resHeaders.set('x-proxy-version', 'v3-api-route');
+
   return new NextResponse(upstreamRes.body, {
     status: upstreamRes.status,
     headers: resHeaders,
