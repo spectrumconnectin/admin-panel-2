@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import Spinner from '@/components/ui/Spinner';
+import { Users, Zap, Star, BarChart3 } from 'lucide-react';
 import { getEtfStats } from '@/lib/api';
 import type { EtfStats } from '@/lib/api';
 import { formatNumber } from '@/lib/utils';
@@ -45,10 +46,10 @@ export default function EtfPage() {
             <section>
               <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Overview</h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <StatCard icon="🏆" label="Total Accounts"       value={formatNumber(data.total_accounts)}        color="violet" />
-                <StatCard icon="⚡" label="Lifetime Points"      value={formatNumber(data.total_lifetime_points)} color="amber" />
-                <StatCard icon="💸" label="Redeemed Points"      value={formatNumber(data.total_redeemed_points)} color="green" />
-                <StatCard icon="📊" label="Active Points (held)" color="blue"
+                <StatCard icon={<Users className="h-5 w-5" />}    label="Total Accounts"       value={formatNumber(data.total_accounts)}        color="violet" />
+                <StatCard icon={<Zap className="h-5 w-5" />}      label="Lifetime Points"      value={formatNumber(data.total_lifetime_points)} color="amber" />
+                <StatCard icon={<Star className="h-5 w-5" />}     label="Redeemed Points"      value={formatNumber(data.total_redeemed_points)} color="green" />
+                <StatCard icon={<BarChart3 className="h-5 w-5" />} label="Active Points (held)" color="blue"
                   value={formatNumber(data.total_lifetime_points - data.total_redeemed_points)} />
               </div>
             </section>

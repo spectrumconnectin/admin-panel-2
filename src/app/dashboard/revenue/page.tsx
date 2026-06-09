@@ -6,6 +6,7 @@ import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import Badge from '@/components/ui/Badge';
 import Spinner from '@/components/ui/Spinner';
+import { DollarSign, PiggyBank, Building2, Film, Hash, TrendingUp, AlertTriangle } from 'lucide-react';
 import { getRevenue } from '@/lib/api';
 import type { RevenueReport } from '@/lib/api';
 import { formatCurrency, formatNumber, formatDate, shortId } from '@/lib/utils';
@@ -33,19 +34,25 @@ export default function RevenuePage() {
       <Header title="Revenue & Analytics" subtitle="All-time platform revenue breakdown" />
       <div className="p-6 space-y-6">
 
-        {error && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+        {error && (
+          <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <AlertTriangle className="h-4 w-4 shrink-0" />{error}
+          </div>
+        )}
 
         {data && (
           <>
             {/* All-time totals */}
             <section>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">All-Time Totals</h2>
+              <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <TrendingUp className="h-3.5 w-3.5" /> All-Time Totals
+              </h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                <StatCard icon="📊" label="Gross Volume (GMV)"     value={formatCurrency(data.totals.volume)}         color="blue" />
-                <StatCard icon="💜" label="Platform Revenue"       value={formatCurrency(data.totals.platform_total)} color="violet" />
-                <StatCard icon="🏢" label="Client Fees Collected"  value={formatCurrency(data.totals.client_fees)}    color="teal" />
-                <StatCard icon="🎨" label="Creator Fees Collected" value={formatCurrency(data.totals.creator_fees)}   color="green" />
-                <StatCard icon="🔢" label="Completed Transactions" value={formatNumber(data.totals.transaction_count)} color="amber" />
+                <StatCard icon={<DollarSign className="h-5 w-5" />} label="Gross Volume (GMV)"     value={formatCurrency(data.totals.volume)}         color="blue" />
+                <StatCard icon={<PiggyBank className="h-5 w-5" />}  label="Platform Revenue"       value={formatCurrency(data.totals.platform_total)} color="violet" />
+                <StatCard icon={<Building2 className="h-5 w-5" />}  label="Client Fees Collected"  value={formatCurrency(data.totals.client_fees)}    color="teal" />
+                <StatCard icon={<Film className="h-5 w-5" />}       label="Creator Fees Collected" value={formatCurrency(data.totals.creator_fees)}   color="green" />
+                <StatCard icon={<Hash className="h-5 w-5" />}       label="Completed Transactions" value={formatNumber(data.totals.transaction_count)} color="amber" />
               </div>
             </section>
 
