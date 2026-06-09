@@ -20,8 +20,12 @@ async function proxy(
 ): Promise<NextResponse> {
   const path = params.path.join('/');
 
-  // Build target URL and forward query params
-  const target = new URL(`/${path}`, BACKEND_URL);
+  // Build target URL — strip trailing slash from base then append path.
+  // NOTE: do NOT use `new URL('/path', base)` when base has a sub-path like
+  // '/backend', because the URL constructor treats a leading '/' as absolute
+  // and silently drops the base path.  String concatenation is correct here.
+  const base = BACKEND_URL.replace(/\/+$/, '');
+  const target = new URL(`${base}/${path}`);
   req.nextUrl.searchParams.forEach((value, key) => {
     target.searchParams.set(key, value);
   });
