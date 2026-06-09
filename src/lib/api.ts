@@ -31,8 +31,10 @@ async function req<T>(path: string, options: RequestInit = {}): Promise<T> {
     ...(options.headers as Record<string, string> | undefined),
   };
 
-  // Don't set Content-Type for FormData — browser does it automatically with boundary
-  if (!(options.body instanceof FormData)) {
+  // Don't set Content-Type for FormData (browser adds boundary automatically).
+  // Also don't overwrite a Content-Type already supplied by the caller
+  // (e.g. login sends application/x-www-form-urlencoded).
+  if (!(options.body instanceof FormData) && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json';
   }
 
