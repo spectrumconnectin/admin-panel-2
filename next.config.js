@@ -4,25 +4,11 @@ const nextConfig = {
    * Standalone output — required for Railway / containerised deployments.
    * Creates .next/standalone/server.js which is a self-contained Node server
    * that reads PORT and HOSTNAME from the environment automatically.
+   *
+   * API proxying is handled by src/app/api/[...path]/route.ts at RUNTIME
+   * (reads SPECTRUM_API_URL from env, falls back to the cloudflare tunnel).
    */
   output: 'standalone',
-
-  /**
-   * Proxy all /api/* requests to the Spectrum Connect backend.
-   * This eliminates CORS configuration on the main backend — the browser
-   * only ever talks to this Next.js server, which then forwards to FastAPI.
-   *
-   * Set SPECTRUM_API_URL in .env.local (dev) or Railway env vars (prod).
-   */
-  async rewrites() {
-    const apiUrl = process.env.SPECTRUM_API_URL || 'https://standard-saved-streams-henry.trycloudflare.com';
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${apiUrl}/:path*`,
-      },
-    ];
-  },
 };
 
 module.exports = nextConfig;
