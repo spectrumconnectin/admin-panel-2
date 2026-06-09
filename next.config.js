@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /**
+   * Standalone output — required for Railway / containerised deployments.
+   * Creates .next/standalone/server.js which is a self-contained Node server
+   * that reads PORT and HOSTNAME from the environment automatically.
+   */
+  output: 'standalone',
+
+  /**
    * Proxy all /api/* requests to the Spectrum Connect backend.
    * This eliminates CORS configuration on the main backend — the browser
    * only ever talks to this Next.js server, which then forwards to FastAPI.
