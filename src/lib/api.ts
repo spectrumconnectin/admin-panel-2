@@ -245,7 +245,7 @@ export async function login(email: string, password: string): Promise<string> {
 }
 
 export async function getMe(): Promise<AuthUser> {
-  return req<AuthUser>('/auth/me');
+  return req<AuthUser>('/auth/me/role');
 }
 
 // ── Admin: Stats ──────────────────────────────────────────────────────────────
