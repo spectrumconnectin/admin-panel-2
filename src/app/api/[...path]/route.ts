@@ -80,7 +80,13 @@ async function proxy(
 
   resHeaders.set('x-proxy-version', 'v3-api-route');
 
-  return new NextResponse(upstreamRes.body, {
+  // Read the full body as an ArrayBuffer before handing to NextResponse.
+  // Streaming upstreamRes.body directly can produce an empty response when
+  // Railway/Vercel's edge has already partially consumed the stream or when
+  // Node's fetch decompressed a gzip body and the stream state is stale.
+  const responseBody = await upstreamRes.arrayBuffer();
+
+  return new NextResponse(responseBody, {
     status: upstreamRes.status,
     headers: resHeaders,
   });
