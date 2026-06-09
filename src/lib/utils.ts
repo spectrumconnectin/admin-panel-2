@@ -1,12 +1,9 @@
-/** Format a number as currency (LKR by default, or USD). */
-export function formatCurrency(amount: number, currency = 'LKR'): string {
-  if (currency === 'USD' || currency === 'usd') {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
-  }
-  return new Intl.NumberFormat('en-LK', {
+/** Format a number as currency. Backend stores all amounts in USD. */
+export function formatCurrency(amount: number, currency = 'USD'): string {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'LKR',
-    maximumFractionDigits: 0,
+    currency,
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 

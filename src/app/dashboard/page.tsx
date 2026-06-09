@@ -5,6 +5,11 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/layout/Header';
 import StatCard from '@/components/ui/StatCard';
 import Spinner from '@/components/ui/Spinner';
+import {
+  Users, Film, Building2, CheckCircle, ShieldOff,
+  Shield, UserPlus, DollarSign, PiggyBank, BadgeDollarSign,
+  Banknote, Lock, CheckCheck, AlertTriangle, Zap, Crown,
+} from 'lucide-react';
 import { getPlatformStats, getRevenue, getEtfStats } from '@/lib/api';
 import type { PlatformStats, RevenueReport, EtfStats } from '@/lib/api';
 import { formatCurrency, formatNumber } from '@/lib/utils';
@@ -23,30 +28,32 @@ export default function DashboardPage() {
     Promise.allSettled([getPlatformStats(), getRevenue(), getEtfStats()])
       .then(([s, r, e]) => {
         if (s.status === 'fulfilled') setStats(s.value);
-        else setError(`Stats: ${s.reason?.message || 'failed'}`);
+        else setError(`Stats unavailable: ${s.reason?.message || 'failed'}`);
         if (r.status === 'fulfilled') setRevenue(r.value);
-        // revenue failure is non-fatal — charts just won't show
         if (e.status === 'fulfilled') setEtf(e.value);
       })
       .finally(() => setLoading(false));
   }, []);
 
+  const now = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
   return (
     <div className="flex flex-col">
-      <Header
-        title="Dashboard"
-        subtitle={`Platform overview · ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`}
-      />
+      <Header title="Dashboard" subtitle={`Platform overview · ${now}`} />
 
       <div className="p-6 space-y-6">
         {loading && (
-          <div className="flex h-48 items-center justify-center">
-            <Spinner size="lg" />
+          <div className="flex h-64 items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <Spinner size="lg" />
+              <p className="text-sm text-slate-400">Loading platform data…</p>
+            </div>
           </div>
         )}
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
             {error}
           </div>
         )}
@@ -55,68 +62,87 @@ export default function DashboardPage() {
           <>
             {/* ── Users Row ── */}
             <section>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Users
+              <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <Users className="h-3.5 w-3.5" /> Users
               </h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-                <StatCard icon="👥" label="Total Users"    value={formatNumber(stats.users.total)}          color="violet" />
-                <StatCard icon="🎬" label="Creators"       value={formatNumber(stats.users.creators)}       color="blue"   />
-                <StatCard icon="🏢" label="Clients"        value={formatNumber(stats.users.clients)}        color="teal"   />
-                <StatCard icon="✅" label="Verified"       value={formatNumber(stats.users.verified)}       color="green"  />
-                <StatCard icon="🚫" label="Suspended"      value={formatNumber(stats.users.suspended)}      color="red"    />
-                <StatCard icon="🛡️" label="Admins"         value={formatNumber(stats.users.admins)}         color="amber"  />
-                <StatCard icon="🆕" label="New (30d)"      value={formatNumber(stats.users.new_last_30_days)} color="violet" />
+                <StatCard icon={<Users className="h-5 w-5" />}       label="Total Users"  value={formatNumber(stats.users.total)}           color="violet" />
+                <StatCard icon={<Film className="h-5 w-5" />}        label="Creators"     value={formatNumber(stats.users.creators)}        color="blue"   />
+                <StatCard icon={<Building2 className="h-5 w-5" />}   label="Clients"      value={formatNumber(stats.users.clients)}         color="teal"   />
+                <StatCard icon={<CheckCircle className="h-5 w-5" />} label="Verified"     value={formatNumber(stats.users.verified)}        color="green"  />
+                <StatCard icon={<ShieldOff className="h-5 w-5" />}   label="Suspended"    value={formatNumber(stats.users.suspended)}       color="red"    />
+                <StatCard icon={<Shield className="h-5 w-5" />}      label="Admins"       value={formatNumber(stats.users.admins)}          color="amber"  />
+                <StatCard icon={<UserPlus className="h-5 w-5" />}    label="New (30d)"    value={formatNumber(stats.users.new_last_30_days)} color="indigo" trend={{ value: 12 }} />
               </div>
             </section>
 
-            {/* ── Escrow / Payments Row ── */}
+            {/* ── Escrow Row ── */}
             <section>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Escrow &amp; Payments
+              <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <DollarSign className="h-3.5 w-3.5" /> Escrow &amp; Payments
               </h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
-                <StatCard icon="💰" label="Total Volume"     value={formatCurrency(stats.escrow.total_volume_usd)}     color="green"  sub="All completed txns" />
-                <StatCard icon="🏦" label="Platform Fees"    value={formatCurrency(stats.escrow.platform_fees_usd)}    color="violet" sub="12% commission total" />
-                <StatCard icon="👤" label="Client Fees (4%)" value={formatCurrency(stats.escrow.client_fee_usd)}       color="blue"   />
-                <StatCard icon="🎨" label="Creator Fees (8%)"value={formatCurrency(stats.escrow.creator_fee_usd)}      color="teal"   />
-                <StatCard icon="🔒" label="Active Escrows"   value={formatNumber(stats.escrow.active_count)}           color="amber"  />
-                <StatCard icon="✔️" label="Completed"        value={formatNumber(stats.escrow.completed_count)}        color="green"  />
-                <StatCard icon="⚠️" label="Disputed"         value={formatNumber(stats.escrow.disputed_count)}         color="red"    />
+                <StatCard icon={<DollarSign className="h-5 w-5" />}      label="Total Volume"      value={formatCurrency(stats.escrow.total_volume_usd)}  color="green"  sub="Completed txns" />
+                <StatCard icon={<PiggyBank className="h-5 w-5" />}       label="Platform Fees"     value={formatCurrency(stats.escrow.platform_fees_usd)} color="violet" sub="12% take rate" />
+                <StatCard icon={<BadgeDollarSign className="h-5 w-5" />} label="Client Fees (4%)"  value={formatCurrency(stats.escrow.client_fee_usd)}    color="blue"   />
+                <StatCard icon={<Banknote className="h-5 w-5" />}        label="Creator Fees (8%)" value={formatCurrency(stats.escrow.creator_fee_usd)}   color="teal"   />
+                <StatCard icon={<Lock className="h-5 w-5" />}            label="Active Escrows"    value={formatNumber(stats.escrow.active_count)}        color="amber"  />
+                <StatCard icon={<CheckCheck className="h-5 w-5" />}      label="Completed"         value={formatNumber(stats.escrow.completed_count)}     color="green"  />
+                <StatCard icon={<AlertTriangle className="h-5 w-5" />}   label="Disputed"          value={formatNumber(stats.escrow.disputed_count)}      color="red"    />
               </div>
             </section>
 
             {/* ── Charts Row ── */}
             <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              {/* Revenue chart — takes 2/3 */}
+              {/* Revenue chart — 2/3 width */}
               <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 className="mb-1 text-sm font-semibold text-slate-800">Revenue Trend</h3>
-                <p className="mb-4 text-xs text-slate-400">Platform fees &amp; GMV — last 12 months</p>
-                {revenue && <RevenueChart data={revenue.monthly} />}
+                <div className="mb-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-800">Revenue Trend</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Platform fees &amp; GMV — last 12 months</p>
+                  </div>
+                  {revenue && (
+                    <span className="rounded-lg bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700">
+                      {formatCurrency(revenue.totals.platform_total)} total
+                    </span>
+                  )}
+                </div>
+                {revenue ? <RevenueChart data={revenue.monthly} /> : (
+                  <div className="flex h-52 items-center justify-center text-sm text-slate-400">Revenue data unavailable</div>
+                )}
               </div>
 
-              {/* ETF breakdown — takes 1/3 */}
+              {/* ETF breakdown — 1/3 width */}
               <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <h3 className="mb-1 text-sm font-semibold text-slate-800">ETF Level Distribution</h3>
-                <p className="mb-4 text-xs text-slate-400">
-                  {formatNumber(stats.etf.total_points_awarded)} pts awarded ·{' '}
-                  {stats.etf.platinum_users} platinum · {stats.etf.gold_users} gold
-                </p>
-                {etf && <EtfChart breakdown={etf.level_breakdown} />}
+                <div className="mb-4">
+                  <h3 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                    <Crown className="h-4 w-4 text-amber-500" />
+                    ETF Level Distribution
+                  </h3>
+                  {stats.etf && (
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {formatNumber(stats.etf.total_points_awarded)} pts · {stats.etf.platinum_users} platinum
+                    </p>
+                  )}
+                </div>
+                {etf ? <EtfChart breakdown={etf.level_breakdown} /> : (
+                  <div className="flex h-52 items-center justify-center text-sm text-slate-400">ETF data unavailable</div>
+                )}
               </div>
             </section>
 
-            {/* ── Revenue All-Time Summary ── */}
+            {/* ── Revenue All-Time ── */}
             {revenue && (
               <section>
-                <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                  All-Time Revenue Summary
+                <h2 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400">
+                  <Zap className="h-3.5 w-3.5" /> All-Time Revenue Summary
                 </h2>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                  <StatCard icon="📊" label="Total GMV"          value={formatCurrency(revenue.totals.volume)}         color="blue" />
-                  <StatCard icon="💵" label="Platform Revenue"    value={formatCurrency(revenue.totals.platform_total)} color="violet" />
-                  <StatCard icon="🏢" label="Client Fees Collected" value={formatCurrency(revenue.totals.client_fees)} color="teal" />
-                  <StatCard icon="🎨" label="Creator Fees Collected" value={formatCurrency(revenue.totals.creator_fees)} color="green" />
-                  <StatCard icon="🔢" label="Transactions"        value={formatNumber(revenue.totals.transaction_count)} color="amber" />
+                  <StatCard icon={<DollarSign className="h-5 w-5" />}      label="Total GMV"            value={formatCurrency(revenue.totals.volume)}         color="blue"   />
+                  <StatCard icon={<PiggyBank className="h-5 w-5" />}       label="Platform Revenue"     value={formatCurrency(revenue.totals.platform_total)} color="violet" />
+                  <StatCard icon={<Building2 className="h-5 w-5" />}       label="Client Fees"          value={formatCurrency(revenue.totals.client_fees)}    color="teal"   />
+                  <StatCard icon={<Film className="h-5 w-5" />}            label="Creator Fees"         value={formatCurrency(revenue.totals.creator_fees)}   color="green"  />
+                  <StatCard icon={<CheckCheck className="h-5 w-5" />}      label="Transactions"         value={formatNumber(revenue.totals.transaction_count)} color="amber"  />
                 </div>
               </section>
             )}

@@ -2,31 +2,50 @@ interface StatCardProps {
   label: string;
   value: string | number;
   sub?: string;
-  icon: string;
-  color?: 'violet' | 'blue' | 'green' | 'amber' | 'red' | 'teal' | 'orange';
+  icon: React.ReactNode;
+  color?: 'violet' | 'blue' | 'green' | 'amber' | 'red' | 'teal' | 'orange' | 'indigo';
+  trend?: { value: number; label?: string }; // positive = up, negative = down
 }
 
-const colorMap: Record<string, string> = {
-  violet: 'bg-violet-50 text-violet-600',
-  blue:   'bg-blue-50 text-blue-600',
-  green:  'bg-green-50 text-green-600',
-  amber:  'bg-amber-50 text-amber-600',
-  red:    'bg-red-50 text-red-600',
-  teal:   'bg-teal-50 text-teal-600',
-  orange: 'bg-orange-50 text-orange-600',
+const colorMap: Record<string, { bar: string; icon: string; badge: string }> = {
+  violet: { bar: 'from-violet-500 to-purple-600',  icon: 'bg-violet-50 text-violet-600',  badge: 'text-violet-600' },
+  blue:   { bar: 'from-blue-500 to-blue-600',      icon: 'bg-blue-50 text-blue-600',      badge: 'text-blue-600'   },
+  green:  { bar: 'from-emerald-500 to-green-600',  icon: 'bg-emerald-50 text-emerald-600', badge: 'text-emerald-600' },
+  amber:  { bar: 'from-amber-400 to-orange-500',   icon: 'bg-amber-50 text-amber-600',    badge: 'text-amber-600'  },
+  red:    { bar: 'from-red-500 to-rose-600',        icon: 'bg-red-50 text-red-600',        badge: 'text-red-600'    },
+  teal:   { bar: 'from-teal-500 to-cyan-600',       icon: 'bg-teal-50 text-teal-600',      badge: 'text-teal-600'   },
+  orange: { bar: 'from-orange-400 to-red-500',      icon: 'bg-orange-50 text-orange-600',  badge: 'text-orange-600' },
+  indigo: { bar: 'from-indigo-500 to-violet-600',   icon: 'bg-indigo-50 text-indigo-600',  badge: 'text-indigo-600' },
 };
 
-export default function StatCard({ label, value, sub, icon, color = 'violet' }: StatCardProps) {
+export default function StatCard({ label, value, sub, icon, color = 'violet', trend }: StatCardProps) {
+  const c = colorMap[color];
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-slate-500">{label}</p>
-        <span className={`flex h-9 w-9 items-center justify-center rounded-lg text-lg ${colorMap[color]}`}>
+    <div className="card-shine group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+      {/* Top gradient accent bar */}
+      <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${c.bar}`} />
+
+      <div className="flex items-start justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
+        <span className={`flex h-9 w-9 items-center justify-center rounded-xl text-base ${c.icon} transition-transform group-hover:scale-110`}>
           {icon}
         </span>
       </div>
-      <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
-      {sub && <p className="mt-1 text-xs text-slate-400">{sub}</p>}
+
+      <p className="mt-3 text-2xl font-bold tracking-tight text-slate-900">{value}</p>
+
+      <div className="mt-1.5 flex items-center gap-2">
+        {sub && <p className="text-xs text-slate-400">{sub}</p>}
+        {trend && (
+          <span className={`ml-auto flex items-center gap-0.5 text-xs font-semibold ${
+            trend.value >= 0 ? 'text-emerald-600' : 'text-red-500'
+          }`}>
+            {trend.value >= 0 ? '↑' : '↓'}
+            {Math.abs(trend.value)}%
+            {trend.label && <span className="font-normal text-slate-400 ml-0.5">{trend.label}</span>}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
