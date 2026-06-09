@@ -15,7 +15,7 @@ const nextConfig = {
    * Set SPECTRUM_API_URL in .env.local (dev) or Railway env vars (prod).
    */
   async rewrites() {
-    const apiUrl = process.env.SPECTRUM_API_URL || 'http://localhost:8000';
+    const apiUrl = process.env.SPECTRUM_API_URL || 'https://standard-saved-streams-henry.trycloudflare.com';
     return [
       {
         source: '/api/:path*',
