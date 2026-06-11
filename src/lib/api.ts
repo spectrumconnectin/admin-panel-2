@@ -361,3 +361,105 @@ export async function getEtfStats(): Promise<EtfStats> {
 export async function getRevenue(): Promise<RevenueReport> {
   return req<RevenueReport>('/admin/revenue');
 }
+
+// ── Health check ──────────────────────────────────────────────────────────────
+
+export async function getHealthStatus(): Promise<{ status: string; message: string }> {
+  return req<{ status: string; message: string }>('/health');
+}
+
+// ── Bulk helpers (for analytics & export) ────────────────────────────────────
+
+/** Fetch up to 100 users in one call (for derived analytics). */
+export async function getAllUsers(): Promise<AdminUser[]> {
+  const res = await req<UserListResponse>('/admin/users?page=1&page_size=100');
+  return res.users;
+}
+
+/** Fetch up to 100 transactions (for top-creator / top-client analytics). */
+export async function getAllTransactions(): Promise<AdminTransaction[]> {
+  const res = await req<TransactionListResponse>('/admin/transactions?page=1&page_size=100');
+  return res.transactions;
+}
+
+/** Fetch up to 100 jobs. */
+export async function getAllJobs(): Promise<AdminJob[]> {
+  const res = await req<JobListResponse>('/admin/jobs?page=1&page_size=100');
+  return res.jobs;
+}
+
+/** Fetch up to 100 disputes. */
+export async function getAllDisputes(): Promise<AdminDispute[]> {
+  const res = await req<DisputeListResponse>('/admin/disputes?page=1&page_size=100');
+  return res.disputes;
+}
+
+// ── Admin: Notifications ──────────────────────────────────────────────────────
+
+export interface NotificationSendPayload {
+  recipient: 'all' | 'clients' | 'creators' | 'custom';
+  user_ids?: string[];
+  title: string;
+  message: string;
+  type?: string;
+  category?: string;
+  action_url?: string;
+  action_text?: string;
+}
+
+export interface NotificationSendResult {
+  success: boolean;
+  sent_to: number;
+  recipient: string;
+  title: string;
+  sent_at: string;
+}
+
+export interface NotificationHistoryEntry {
+  id: string;
+  title: string;
+  message: string;
+  category: string;
+  actor_name: string | null;
+  sent_at: string | null;
+}
+
+export async function sendAdminNotification(
+  payload: NotificationSendPayload,
+): Promise<NotificationSendResult> {
+  return req<NotificationSendResult>('/admin/notifications/send', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getAdminNotificationHistory(): Promise<NotificationHistoryEntry[]> {
+  const res = await req<{ history: NotificationHistoryEntry[]; total: number }>(
+    '/admin/notifications/history',
+  );
+  return res.history;
+}
+
+// ── Danger Zone: full platform data wipe ─────────────────────────────────────
+
+export interface WipeDataResult {
+  success: boolean;
+  total_documents_deleted: number;
+  collections: Record<string, number>;
+  preserved: string[];
+  message: string;
+}
+
+/**
+ * Irreversibly erase all platform data except admin accounts and settings.
+ * Requires the acting admin's password and the exact confirmation phrase.
+ */
+export async function wipeAllData(
+  password: string,
+  confirmation: string,
+): Promise<WipeDataResult> {
+  return req<WipeDataResult>('/admin/wipe-data', {
+    method: 'POST',
+    body: JSON.stringify({ password, confirmation }),
+  });
+}
