@@ -463,3 +463,45 @@ export async function wipeAllData(
     body: JSON.stringify({ password, confirmation }),
   });
 }
+
+// ── Call the CEO requests ─────────────────────────────────────────────────────
+
+export type CeoCallStatus =
+  | 'new' | 'under_review' | 'accepted' | 'scheduled' | 'completed' | 'declined';
+
+export interface CeoCallRequest {
+  id: string;
+  full_name: string;
+  email: string;
+  company_name: string | null;
+  phone: string | null;
+  country: string | null;
+  subject: string | null;
+  purpose: string;
+  message: string | null;
+  meeting_type: string | null;
+  preferred_date: string | null;
+  preferred_time: string | null;
+  status: CeoCallStatus;
+  admin_notes: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface CeoCallListResult {
+  requests: CeoCallRequest[];
+  total: number;
+  counts: Record<CeoCallStatus, number>;
+}
+
+export async function getCeoCalls(statusFilter?: string): Promise<CeoCallListResult> {
+  const qs = statusFilter ? `?status_filter=${encodeURIComponent(statusFilter)}` : '';
+  return req<CeoCallListResult>(`/ceo-calls/admin${qs}`);
+}
+
+export async function updateCeoCall(
+  id: string,
+  body: { status?: CeoCallStatus; admin_notes?: string },
+): Promise<{ success: boolean; request: CeoCallRequest }> {
+  return req(`/ceo-calls/admin/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
+}

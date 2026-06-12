@@ -7,7 +7,7 @@ import { useSidebar } from '@/contexts/SidebarContext';
 import {
   LayoutDashboard, Users, FolderOpen, Scale,
   CreditCard, TrendingUp, Trophy, LogOut, Zap,
-  BarChart3, Activity, Bell, Download, X, Settings,
+  BarChart3, Activity, Bell, Download, X, Settings, Phone,
 } from 'lucide-react';
 
 interface NavItem  { href: string; Icon: React.ElementType; label: string }
@@ -42,6 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/dashboard/analytics',     Icon: BarChart3, label: 'Analytics'      },
       { href: '/dashboard/health',        Icon: Activity,  label: 'Health Monitor' },
       { href: '/dashboard/notifications', Icon: Bell,      label: 'Notifications'  },
+      { href: '/dashboard/ceo-calls',     Icon: Phone,     label: 'Call the CEO'   },
       { href: '/dashboard/export',        Icon: Download,  label: 'Export'         },
       { href: '/dashboard/settings',      Icon: Settings,  label: 'Settings'       },
     ],
