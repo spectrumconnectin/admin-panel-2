@@ -505,3 +505,45 @@ export async function updateCeoCall(
 ): Promise<{ success: boolean; request: CeoCallRequest }> {
   return req(`/ceo-calls/admin/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
 }
+
+// ── Activity / Audit Logs ─────────────────────────────────────────────────────
+
+export interface AuditLogEntry {
+  id: string;
+  event_type: string;
+  severity: 'debug' | 'info' | 'warning' | 'error' | 'critical';
+  actor_id: string | null;
+  actor_username: string | null;
+  actor_role: string | null;
+  target_type: string | null;
+  target_id: string | null;
+  ip_address: string | null;
+  request_path: string | null;
+  request_method: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string | null;
+}
+
+export interface AuditLogResult {
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+  logs: AuditLogEntry[];
+}
+
+export async function getAuditLogs(params: {
+  event_type?: string;
+  severity?: string;
+  actor_id?: string;
+  limit?: number;
+  offset?: number;
+} = {}): Promise<AuditLogResult> {
+  const q = new URLSearchParams();
+  if (params.event_type) q.set('event_type', params.event_type);
+  if (params.severity)   q.set('severity', params.severity);
+  if (params.actor_id)   q.set('actor_id', params.actor_id);
+  q.set('limit',  String(params.limit ?? 50));
+  q.set('offset', String(params.offset ?? 0));
+  return req<AuditLogResult>(`/admin/audit?${q.toString()}`);
+}
