@@ -40,7 +40,7 @@ export default function DisputesPage() {
   return (
     <div className="flex flex-col">
       <Header title="Disputes" subtitle={`${formatNumber(total)} total · ${openCount} open on this page`} />
-      <div className="p-6 space-y-4">
+      <div className="p-4 lg:p-6 space-y-4 lg:space-y-4">
 
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-4">

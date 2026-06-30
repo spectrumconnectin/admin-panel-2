@@ -42,7 +42,7 @@ export default function TransactionsPage() {
   return (
     <div className="flex flex-col">
       <Header title="Transactions" subtitle={`${formatNumber(total)} total transactions`} />
-      <div className="p-6 space-y-4">
+      <div className="p-4 lg:p-6 space-y-4 lg:space-y-4">
 
         <div className="flex flex-wrap gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <select value={status} onChange={e => setStatus(e.target.value)}

@@ -547,3 +547,72 @@ export async function getAuditLogs(params: {
   q.set('offset', String(params.offset ?? 0));
   return req<AuditLogResult>(`/admin/audit?${q.toString()}`);
 }
+
+// ── Blog (authoring) ──────────────────────────────────────────────────────────
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content?: string;
+  cover_image?: string;
+  category?: string;
+  tags?: string[];
+  is_featured?: boolean;
+  status?: 'draft' | 'published' | 'archived';
+  author?: { name?: string; avatar?: string; bio?: string };
+  stats?: { views?: number; likes?: number; comments_count?: number; read_time_minutes?: number };
+  published_at?: string | null;
+  created_at?: string;
+}
+
+export interface BlogListResult {
+  posts: BlogPost[];
+  total: number;
+  has_more: boolean;
+}
+
+export interface BlogPostInput {
+  title: string;
+  excerpt: string;
+  content: string;
+  cover_image: string;
+  category?: string;
+  tags?: string[];
+  is_featured?: boolean;
+  status?: 'draft' | 'published' | 'archived';
+  author_name?: string;
+  author_avatar?: string;
+  author_bio?: string;
+}
+
+export async function getBlogPosts(status = 'draft,published,archived'): Promise<BlogListResult> {
+  // Backend filters by a single status; fetch each and merge so admins see all.
+  const statuses = status.split(',');
+  const all: BlogPost[] = [];
+  for (const s of statuses) {
+    try {
+      const r = await req<BlogListResult>(`/blog/posts?status=${encodeURIComponent(s)}&limit=100`);
+      all.push(...r.posts);
+    } catch { /* ignore a failing status */ }
+  }
+  all.sort((a, b) => (b.created_at ?? '').localeCompare(a.created_at ?? ''));
+  return { posts: all, total: all.length, has_more: false };
+}
+
+export async function getBlogPost(slug: string): Promise<BlogPost> {
+  return req<BlogPost>(`/blog/posts/${encodeURIComponent(slug)}`);
+}
+
+export async function createBlogPost(body: BlogPostInput): Promise<{ id?: string; slug?: string }> {
+  return req('/blog/posts', { method: 'POST', body: JSON.stringify(body) });
+}
+
+export async function updateBlogPost(id: string, body: Partial<BlogPostInput>): Promise<unknown> {
+  return req(`/blog/posts/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
+}
+
+export async function deleteBlogPost(id: string): Promise<unknown> {
+  return req(`/blog/posts/${id}?hard_delete=true`, { method: 'DELETE' });
+}

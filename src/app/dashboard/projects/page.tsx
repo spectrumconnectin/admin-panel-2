@@ -52,7 +52,7 @@ export default function ProjectsPage() {
   return (
     <div className="flex flex-col">
       <Header title="Projects" subtitle={`${formatNumber(total)} total projects`} />
-      <div className="p-6 space-y-4">
+      <div className="p-4 lg:p-6 space-y-4 lg:space-y-4">
         <div className="flex flex-wrap gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <input type="search" placeholder="Search title or description…"
             value={search} onChange={e => setSearch(e.target.value)}

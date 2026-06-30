@@ -15,6 +15,7 @@ const COLORS: Record<string, string> = {
 };
 
 export default function EtfChart({ breakdown }: Props) {
+  if (!breakdown) return null;
   const data = Object.entries(breakdown).map(([name, value]) => ({ name, value }));
   return (
     <ResponsiveContainer width="100%" height={180}>

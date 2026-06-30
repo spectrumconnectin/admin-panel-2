@@ -37,7 +37,7 @@ export default function EtfPage() {
   return (
     <div className="flex flex-col">
       <Header title="ETF Points" subtitle="Earn Trust Framework — platform points summary" />
-      <div className="p-6 space-y-6">
+      <div className="p-4 lg:p-6 space-y-6 lg:space-y-6">
 
         {error && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
@@ -46,11 +46,11 @@ export default function EtfPage() {
             <section>
               <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Overview</h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <StatCard icon={<Users className="h-5 w-5" />}    label="Total Accounts"       value={formatNumber(data.total_accounts)}        color="violet" />
-                <StatCard icon={<Zap className="h-5 w-5" />}      label="Lifetime Points"      value={formatNumber(data.total_lifetime_points)} color="amber" />
-                <StatCard icon={<Star className="h-5 w-5" />}     label="Redeemed Points"      value={formatNumber(data.total_redeemed_points)} color="green" />
+                <StatCard icon={<Users className="h-5 w-5" />}    label="Total Accounts"       value={formatNumber(data.total_accounts ?? 0)}        color="violet" />
+                <StatCard icon={<Zap className="h-5 w-5" />}      label="Lifetime Points"      value={formatNumber(data.total_lifetime_points ?? 0)} color="amber" />
+                <StatCard icon={<Star className="h-5 w-5" />}     label="Redeemed Points"      value={formatNumber(data.total_redeemed_points ?? 0)} color="green" />
                 <StatCard icon={<BarChart3 className="h-5 w-5" />} label="Active Points (held)" color="blue"
-                  value={formatNumber(data.total_lifetime_points - data.total_redeemed_points)} />
+                  value={formatNumber((data.total_lifetime_points ?? 0) - (data.total_redeemed_points ?? 0))} />
               </div>
             </section>
 
@@ -66,10 +66,11 @@ export default function EtfPage() {
               <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h3 className="mb-3 text-sm font-semibold text-slate-800">Breakdown by Level</h3>
                 <div className="space-y-3">
-                  {Object.entries(data.level_breakdown).map(([level, count]) => {
+                  {Object.entries(data.level_breakdown ?? {}).map(([level, count]) => {
                     const meta = LEVEL_META[level] ?? { icon: '🏅', color: 'text-slate-600', threshold: '—' };
-                    const pct = data.total_accounts > 0
-                      ? ((count / data.total_accounts) * 100).toFixed(1)
+                    const total = data.total_accounts ?? 0;
+                    const pct = total > 0
+                      ? (((count as number) / total) * 100).toFixed(1)
                       : '0.0';
                     return (
                       <div key={level} className="flex items-center gap-3">

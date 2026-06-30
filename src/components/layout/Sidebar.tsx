@@ -7,7 +7,7 @@ import { useSidebar } from '@/contexts/SidebarContext';
 import {
   LayoutDashboard, Users, FolderOpen, Scale,
   CreditCard, TrendingUp, Trophy, LogOut, Zap,
-  BarChart3, Activity, Bell, Download, X, Settings, Phone, ScrollText,
+  BarChart3, Activity, Bell, Download, X, Settings, Phone, ScrollText, Newspaper,
 } from 'lucide-react';
 
 interface NavItem  { href: string; Icon: React.ElementType; label: string }
@@ -34,6 +34,12 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/dashboard/revenue', Icon: TrendingUp, label: 'Revenue'    },
       { href: '/dashboard/etf',     Icon: Trophy,     label: 'ETF Points' },
+    ],
+  },
+  {
+    label: 'Content',
+    items: [
+      { href: '/dashboard/blog', Icon: Newspaper, label: 'Blog' },
     ],
   },
   {

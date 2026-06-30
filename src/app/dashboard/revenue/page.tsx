@@ -32,7 +32,7 @@ export default function RevenuePage() {
   return (
     <div className="flex flex-col">
       <Header title="Revenue & Analytics" subtitle="All-time platform revenue breakdown" />
-      <div className="p-6 space-y-6">
+      <div className="p-4 lg:p-6 space-y-6 lg:space-y-6">
 
         {error && (
           <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

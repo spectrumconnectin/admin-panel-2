@@ -58,7 +58,7 @@ export default function UserDetailPage() {
   return (
     <div className="flex flex-col">
       <Header title={user.display_name || user.username} subtitle={user.email} />
-      <div className="p-6 space-y-5">
+      <div className="p-4 lg:p-6 space-y-5 lg:space-y-5">
 
         {/* Actions bar */}
         <div className="flex flex-wrap gap-2 items-center">

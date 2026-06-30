@@ -21,23 +21,23 @@ const colorMap: Record<string, { bar: string; icon: string; badge: string }> = {
 export default function StatCard({ label, value, sub, icon, color = 'violet', trend }: StatCardProps) {
   const c = colorMap[color];
   return (
-    <div className="card-shine group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
+    <div className="card-shine group relative overflow-hidden rounded-xl border border-slate-200 bg-white p-4 lg:p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5">
       {/* Top gradient accent bar */}
       <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${c.bar}`} />
 
       <div className="flex items-start justify-between">
-        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">{label}</p>
-        <span className={`flex h-9 w-9 items-center justify-center rounded-xl text-base ${c.icon} transition-transform group-hover:scale-110`}>
+        <p className="text-[11px] lg:text-xs font-semibold uppercase tracking-wider text-slate-400 leading-snug pr-1">{label}</p>
+        <span className={`flex h-8 w-8 lg:h-9 lg:w-9 shrink-0 items-center justify-center rounded-xl text-base ${c.icon} transition-transform group-hover:scale-110`}>
           {icon}
         </span>
       </div>
 
-      <p className="mt-3 text-2xl font-bold tracking-tight text-slate-900">{value}</p>
+      <p className="mt-2 lg:mt-3 text-xl lg:text-2xl font-bold tracking-tight text-slate-900">{value}</p>
 
-      <div className="mt-1.5 flex items-center gap-2">
-        {sub && <p className="text-xs text-slate-400">{sub}</p>}
+      <div className="mt-1 lg:mt-1.5 flex items-center gap-2">
+        {sub && <p className="text-[11px] lg:text-xs text-slate-400 truncate">{sub}</p>}
         {trend && (
-          <span className={`ml-auto flex items-center gap-0.5 text-xs font-semibold ${
+          <span className={`ml-auto flex items-center gap-0.5 text-xs font-semibold shrink-0 ${
             trend.value >= 0 ? 'text-emerald-600' : 'text-red-500'
           }`}>
             {trend.value >= 0 ? '↑' : '↓'}
