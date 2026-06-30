@@ -25,6 +25,26 @@ export function clearToken() {
 
 // ── Core request wrapper ──────────────────────────────────────────────────────
 
+/** Turn a FastAPI error `detail` (string, validation-error array, or object)
+ *  into a readable message — fixes the "[object Object]" error display. */
+function extractError(detail: unknown, status: number): string {
+  if (typeof detail === 'string' && detail.trim()) return detail;
+  if (Array.isArray(detail)) {
+    const msgs = detail.map((e) => {
+      const item = e as { loc?: unknown[]; msg?: string };
+      const field = Array.isArray(item.loc) && item.loc.length
+        ? String(item.loc[item.loc.length - 1]) : '';
+      return field && field !== 'body' ? `${field}: ${item.msg}` : (item.msg ?? '');
+    }).filter(Boolean);
+    if (msgs.length) return msgs.join(' · ');
+  }
+  if (detail && typeof detail === 'object') {
+    const m = (detail as { message?: string }).message;
+    if (m) return m;
+  }
+  return `Request failed (HTTP ${status})`;
+}
+
 async function req<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
@@ -50,7 +70,7 @@ async function req<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body?.detail || `Request failed (HTTP ${res.status})`);
+    throw new Error(extractError(body?.detail, res.status));
   }
 
   // 204 No Content

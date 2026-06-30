@@ -186,8 +186,11 @@ export default function BlogPage() {
               </Field>
 
               <Field label="Excerpt" hint="One or two sentences shown in cards and search.">
-                <textarea rows={2} value={editing.excerpt} onChange={e => setEditing({ ...editing, excerpt: e.target.value })}
+                <textarea rows={2} maxLength={500} value={editing.excerpt} onChange={e => setEditing({ ...editing, excerpt: e.target.value })}
                   placeholder="A short summary of the post…" className={inp} />
+                <p className={`text-[11px] mt-1 text-right ${editing.excerpt.length > 480 ? 'text-amber-600' : 'text-slate-400'}`}>
+                  {editing.excerpt.length}/500
+                </p>
               </Field>
 
               <Field label="Cover image URL">
